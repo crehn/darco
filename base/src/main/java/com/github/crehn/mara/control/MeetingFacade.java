@@ -13,6 +13,9 @@ public class MeetingFacade {
     private CalendarProvider calendarProvider;
 
     public void createMeeting(MeetingId meetingId, Meeting meeting, String user) {
-        calendarProvider.createMeeting(meetingId, meeting, user);
+        calendarProvider.createMeeting(meeting, user);
+
+        meeting.getAttendees().forEach(
+                attendee -> calendarProvider.createMeeting(meeting, attendee));
     }
 }

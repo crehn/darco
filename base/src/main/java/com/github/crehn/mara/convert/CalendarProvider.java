@@ -1,7 +1,6 @@
 package com.github.crehn.mara.convert;
 
 import com.github.crehn.mara.api.Meeting;
-import com.github.crehn.mara.api.MeetingId;
 import com.github.crehn.mara.gateway.CalendarGateway;
 import com.github.crehn.mara.gateway.Event;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,12 +16,12 @@ public class CalendarProvider {
     private CalendarGateway gateway;
 
 
-    public void createMeeting(MeetingId meetingId, Meeting meeting, String user) {
+    public void createMeeting(Meeting meeting, String user) {
         gateway.createEvent(toEvent(meeting), user);
     }
 
     private Event toEvent(Meeting meeting) {
-        // for some reason the calendar system uses iCal-like timestamps and assumes Berlin time zone
+        // for some reason the calendar system uses iCalendar-like timestamps and assumes Berlin time zone
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyyMMdd'T'HHmmss")
                 .withZone(ZoneId.of("Europe/Berlin"));
         return Event.builder()

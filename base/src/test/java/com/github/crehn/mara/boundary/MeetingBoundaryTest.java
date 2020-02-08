@@ -31,16 +31,41 @@ public class MeetingBoundaryTest extends AbstractUnitTest {
         MeetingId meetingId = MeetingId.createRandom();
         boundary.createMeeting(meetingId, meeting, "user");
 
-        Event event = captureEvent();
+        Event event = captureCalendarEvent("user");
+        assertCalendarEvent(event);
+    }
+
+    private Event captureCalendarEvent(String calendarOwner) {
+        ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
+        verify(calendarGateway).createEvent(captor.capture(), eq(calendarOwner));
+        return captor.getValue();
+    }
+
+    private void assertCalendarEvent(Event event) {
         assertThat(event.getTitle()).isEqualTo("meeting name");
         assertThat(event.getDtstart()).isEqualTo("20200208T170000");
         assertThat(event.getDtend()).isEqualTo("20200208T173000");
     }
 
-    private Event captureEvent() {
-        ArgumentCaptor<Event> captor = ArgumentCaptor.forClass(Event.class);
-        verify(calendarGateway).createEvent(captor.capture(), eq("user"));
-        return captor.getValue();
+    @Test
+    void shouldCreateMeetingWithAttendees() {
+        Meeting meeting = Meeting.builder()
+                .name("meeting name")
+                .startTime(Instant.parse("2020-02-08T16:00:00Z"))
+                .endTime(Instant.parse("2020-02-08T16:30:00Z"))
+                .attendee("Isaac Newton")
+                .attendee("Albert Einstein")
+                .attendee("Stephen Hawking")
+                .attendee("Commander Data")
+                .build();
+        MeetingId meetingId = MeetingId.createRandom();
+        boundary.createMeeting(meetingId, meeting, "user");
+
+        assertCalendarEvent(captureCalendarEvent("user"));
+        assertCalendarEvent(captureCalendarEvent("Isaac Newton"));
+        assertCalendarEvent(captureCalendarEvent("Albert Einstein"));
+        assertCalendarEvent(captureCalendarEvent("Stephen Hawking"));
+        assertCalendarEvent(captureCalendarEvent("Commander Data"));
     }
 
 }
